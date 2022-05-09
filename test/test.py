@@ -83,7 +83,7 @@ except AttributeError:
 try:
     parse_cfg("DEBUG",cfg_name = "test3.config")
     print("TEST  7: FAIL- does not raise error when invalid config name was specified")
-except Exception as e:
+except ValueError as e:
     print("TEST  7: PASS - (Correctly throws Exception: {})".format(e))   
     
     
@@ -120,3 +120,34 @@ try:
 except Exception as e:
     print("TEST 11: FAIL - (Incorrectly throws Exception: {})".format(e))   
     
+    
+#%% Additional tests
+    
+# TEST 12 - Check that error is thrown when schema-specified params are not included
+try:
+    parse_cfg("DEBUG",cfg_name = "test7.config")
+    print("TEST 12: FAIL- does not raise error when parameters are missing from env")
+except Exception as e:
+    print("TEST 12: PASS - (Correctly throws Exception: {})".format(e))     
+    
+    
+# TEST 13 - Check that no error is thrown when schema-specified params with optional tag are not included
+try:
+    parse_cfg("DEBUG",cfg_name = "test8.config")
+    print("TEST 13: PASS - (No error thrown when optional schema parameters not specified in env)")   
+except Exception as e:
+    print("TEST 13: FAIL - Raises error when optional parameters are missing from env: {}".format(e))
+    
+    
+# TEST 14 - Check that types are correctly cast
+params = parse_cfg("DEFAULT",cfg_name = "test9.config")
+try:
+    assert type(params.a) == int and params.a == 1, "a"
+    assert type(params.b) == str and params.b == "Test String 1", "b"
+    assert type(params.c) == float and params.c == 1.0, "c"
+    assert type(params.d) == bool and params.d, "d"
+    assert type(params.e) == float and params.e == 1.405
+    print("TEST 14: PASS - types are correctly cast")
+except AssertionError as e:
+    print("TEST 14: FAIL - types are not correctly cast: {}".format(e))
+

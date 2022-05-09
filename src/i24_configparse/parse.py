@@ -49,20 +49,39 @@ def parse_cfg(env,cfg_name = None,obj = None,SCHEMA = True):
             schema = dict(config["SCHEMA"])
     
     # get params
-    if env not in config.sections():
+    if env not in config.sections() and env != "DEFAULT":
         warnings.warn("{} specified as config environment in {} but no such environment exists. Using DEFAULT instead".format(env,cfg_name),UserWarning)
         env = "DEFAULT"
     
-    params = dict([(key,literal_eval(config[env][key])) for key in config[env].keys()])
+    params = dict([(key,config[env][key]) for key in config[env].keys()])
     # type-check each against schema
     if SCHEMA:
         for key in params.keys():
             if key not in schema.keys() or (key in config.defaults() and schema[key] == config.defaults()[key]):
                 raise KeyError("Key {} not specified in {} schema".format(key,cfg_name))
-            if type(params[key]) != lex_cast_type(schema[key]):
-                raise TypeError("Provided config value {}:{} in {} does not match schema. ENV:{}, SCHEMA:{}".format(key,params[key],cfg_name,type(params[key]),lex_cast_type(schema[key])))
-                    
-        
+                
+            # deal with optional parameter specifier $
+            schema_val = schema[key]
+            if schema_val[0] == "$":
+                schema_val = schema_val[1:]
+            
+            # cast param as specified type
+            if schema_val == "int":
+                params[key] = int(params[key])
+            elif schema_val == "float":
+                params[key] = float(params[key])
+            elif schema_val == "bool":
+                params[key] = bool(params[key])
+            elif schema_val == "str":
+                params[key] = str(params[key])
+            else:
+                raise ValueError("Invalid type specified in schema for key {}".format(key))
+            
+        # enforce that all schema objects are in environment or are optional
+        for key in schema.keys():
+            if schema[key][0] != "$":
+                if key not in params.keys():
+                    raise KeyError("Key {} specified in schema as required argument but not listed in ENV:{} or DEFAULT".format(key,env))
         
     # assign params to object
     if obj is None:
