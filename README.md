@@ -3,7 +3,7 @@
 ### Installation
 
 ```
-pip install git+https://github.com/DerekGloudemans/i24_configparse@v0.1.2
+pip install git+https://github.com/DerekGloudemans/i24_configparse@v0.1.3
 ```
 
 Then, within your file:
