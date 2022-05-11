@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: EndBug/latest-tag@latest
-        with:
-          tag-name: latest
+#        with:
+#          tag-name: latest
 #      - run: npm install -g bats
 #      - run: bats -v
