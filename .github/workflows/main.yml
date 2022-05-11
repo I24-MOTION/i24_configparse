@@ -4,11 +4,8 @@ jobs:
    latest-tag-job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
       - uses: EndBug/latest-tag@latest
         with:
           tag-name: latest
-          node-version: '14'
-      - run: npm install -g bats
-      - run: bats -v
+#      - run: npm install -g bats
+#      - run: bats -v
