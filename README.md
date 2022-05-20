@@ -16,3 +16,35 @@ from i24_configparse.parse import parse_cfg
 
 params = parse_cfg("my_config_section",cfg_name = "parameter_file.config")
 ```
+
+
+### The config structure
+parameter_file.config:
+```
+[SCHEMA]
+a=int
+b=[int]
+c=$float
+d=str
+
+[DEFAULT]
+a=6
+b=1,456,3,21
+d=Hello World
+
+[RUNTIME]
+c=0.756
+```
+
+and the result:
+```
+
+params.a 
+>>> 6
+params.b
+>>> [1,456,3,21]
+params.c
+>>> 0.756
+params.d
+>>>"Hello World"
+```
