@@ -43,6 +43,7 @@ def parse_cfg(env,cfg_name = None,obj = None,SCHEMA = True):
         if 'SCHEMA' not in config.sections():
             warnings.warn("'SCHEMA' not in {}, so no schema will be enforced.".format(cfg_name),UserWarning)
             SCHEMA = False
+            schema = {}
         
         else:
             # parse types from SCHEMA
