@@ -160,3 +160,12 @@ if type(d) == dict:
 else:
     print("TEST 15: FAIL - (fails to return dictionary when specified)")   
 
+
+# TEST 16 - check list parsing
+try:
+    params = parse_cfg("test_config_section",cfg_name = "test11.config")
+    print("TEST 16: PASS - List parameters parsed correctly")   
+    assert len(params.a) == 5 and params.a[0] == 1, "a"
+    assert len(params.c) == 3 and not params.c[1] , "c"
+except Exception as e:
+    print("TEST 16: FAIL - List parameters parsed incorrectly: {}".format(e))   

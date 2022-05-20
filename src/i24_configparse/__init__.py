@@ -72,9 +72,24 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
                 schema_val = schema[key]
                 if schema_val[0] == "$":
                     schema_val = schema_val[1:]
-
+                
+                if schema_val[0] == "[" and schema_val[-1] == "]":
+                    schema_val = schema_val[1:-1]
+                    items = params[key].split(",")
+                    out = []
+                    
+                    if schema_val == "int":  
+                        [out.append(int(literal_eval(item))) for item in items]
+                    elif schema_val == "float":
+                        [out.append(float(literal_eval(item))) for item in items]
+                    elif schema_val == "bool":
+                        [out.append(bool(literal_eval(item))) for item in items]
+                    elif schema_val == "str":
+                        out = items
+                    params[key] = out
+                
                 # cast param as specified type
-                if schema_val == "int":
+                elif schema_val == "int":
                     params[key] = int(literal_eval(params[key]))
                 elif schema_val == "float":
                     params[key] = float(literal_eval(params[key]))
