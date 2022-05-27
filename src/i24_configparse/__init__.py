@@ -99,8 +99,10 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
                     params[key] = str(params[key])
                 
             elif not SCHEMA:
-                params[key] = literal_eval(params[key])
-                
+            	try:
+                	params[key] = literal_eval(params[key])
+                except:
+                	pass
             else:
                 raise ValueError("Invalid type specified in schema for key {}".format(key))
             
