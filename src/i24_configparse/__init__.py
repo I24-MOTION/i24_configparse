@@ -2,6 +2,7 @@ import configparser
 from ast import literal_eval
 import warnings
 import os
+import csv
 
 
 class Params():
@@ -121,4 +122,51 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
     else:
         return params
 
-    return obj            
+    return obj      
+
+
+# function to get parameters from a CSV like file
+# list_name: relative file path and name
+# key_name: specifies which attribute/column should be matched (column names are extracted from the header line)
+# key_value: value to looking for
+# delim: delimiter character
+def parse_delimited(list_name, key_name, key_value, delim = '|'):
+
+    file_path = os.path.join(os.environ["user_config_directory"], list_name)        
+
+    # open file, and start the parsing process
+    with open(file_path) as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=delim)
+        
+        # extract header line and find the "key" column index
+        header = []
+        header = next(csvreader)
+        
+        if key_name not in header:
+            raise KeyError("Key {} not specified in the header of {}".format(key_name, list_name))
+        
+        key_idx = header.index(key_name)                
+        
+        # parse line by line
+        for row in csvreader:
+            
+            # look for the matching key
+            if row[key_idx] == key_value:
+                
+                # sanity check.. needs to be elaborated..
+                if len(row) != len(header):
+                    raise ValueError("Length of parameters and values are mismatched for {} = {}".format(key_name, key_value))
+                
+                # create new object which will contain the attributes
+                par = Params()
+                
+                # assign attributes
+                for i in range(0, len(header)):
+                    setattr(par, header[i], row[i])
+                
+                # only interested in the first match..
+                # return with the object
+                return par
+    
+    # indicate "not found"
+    raise ValueError("Key {} with value {} not fount in {}".format(key_name, key_value, list_name))    
