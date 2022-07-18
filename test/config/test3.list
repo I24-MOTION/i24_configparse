@@ -1,0 +1,5 @@
+a=int|b=str|c=double|d=float
+ 0 | B0 | false | 0
+ 1 | B1 | true | 1.1
+ 2 | B2 | False | 2.2
+ 3 | B3 | True | 3.3
