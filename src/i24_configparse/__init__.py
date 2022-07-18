@@ -31,7 +31,7 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
         return __builtins__.get(name)
     
     config = configparser.ConfigParser()
-    config_path = os.path.join(os.environ["user_config_directory"],cfg_name)
+    config_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"],cfg_name)
     config.read(config_path)
     
     # verify config path is valid
@@ -135,7 +135,7 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
 #   if key_value not specified -> dictionary; keys as requested by key_name, values are Params object
 def parse_delimited(list_name, key_name, key_value = None, delim = '|'):
 
-    file_path = os.path.join(os.environ["user_config_directory"], list_name)      
+    file_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"], list_name)      
 
     str2type = {'int': int, 'float':float, 'bool': bool, 'str': str}
     
