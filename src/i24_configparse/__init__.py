@@ -2,6 +2,7 @@ import configparser
 from ast import literal_eval
 import warnings
 import os
+import csv
 
 
 class Params():
@@ -121,4 +122,113 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
     else:
         return params
 
-    return obj            
+    return obj      
+
+
+# function to get parameters from a CSV like file
+# list_name: relative file path and name
+# key_name: specifies which attribute/column should be matched (column names are extracted from the header line)
+# key_value: value to looking for (optional)
+# delim: delimiter character
+# return: 
+#   if key_value specified -> single Params object
+#   if key_value not specified -> dictionary; keys as requested by key_name, values are Params object
+def parse_delimited(list_name, key_name, key_value = None, delim = '|'):
+
+    file_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"], list_name)      
+
+    str2type = {'int': int, 'float':float, 'bool': bool, 'str': str}
+    
+    params = {}
+
+    # open file, and start the parsing process
+    with open(file_path) as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=delim)
+        
+        # extract header line and find the "key" column index
+        header = []
+        header = next(csvreader)
+        
+        # (name, type) tuple
+        schema = []    
+
+        key_idx = None
+
+        for col in header:
+            sp = col.split('=')                           
+            
+            # schema should have be in the "name=type" format...
+            if len(sp) != 2:
+                raise KeyError("Column header/schema '{}' is improperly formated".format(col,list_name))
+            
+            key = sp[0].strip()
+            stype = sp[1].strip()
+            
+            # valid type name?
+            if stype not in str2type:
+                raise KeyError("Unknow data type '{}' in column '{}'".format(stype, col))
+                
+            # key column found?
+            if key == key_name:
+            
+                # store key column index 
+                key_idx = len(schema)
+                
+                # check key type
+                if (key_value is not None) and (type(key_value) is not str2type[stype]):
+                    raise KeyError("Incompatible key type - schema: {}, requested: {}".format(str2type[stype], type(key_value)))
+                
+            schema.append((key, str2type[stype]))
+                          
+
+        if key_idx is None:
+            raise KeyError("Key '{}' not specified in the header of '{}'".format(key_name, list_name))                
+        
+        # parse line by line
+        for row in csvreader:        
+        
+            # sanity check..
+            if len(row) != len(header):
+                raise ValueError("Number of colums are different from header in row '{}'".format(row))        
+        
+            par = Params()
+                
+            for i in range(0, len(schema)):
+            
+                (name, typ) = schema[i]
+                
+                val = row[i].strip()
+            
+                # convert to the requested type
+                # booleans need special handling..
+                if typ == bool:
+                
+                    if val in ['True', 'true', 'On', 'on', '1']:
+                        data = True
+                    elif val in ['False', 'false', 'Off', 'off', '0']:
+                        data = False
+                    else:
+                        raise ValueError("'{}' cannot be converted to boolean".format(val))
+                else:
+                    data =  typ(val)
+                
+                # assign attributes
+                setattr(par, name, data)
+                
+                # add params to the dictionary..
+                # key should be present
+                if i == key_idx:
+                    params[data] = par
+            
+    # return all if nothing specified        
+    if key_value is None:
+        return params
+            
+    # something specified.. check availability        
+    if key_value not in params:       
+        # indicate "not found"
+        raise ValueError("Key '{}' with value '{}' not fount in '{}'".format(key_name, key_value, list_name))  
+        
+    # return selected    
+    return params[key_value]
+   
