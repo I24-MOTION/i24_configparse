@@ -30,7 +30,7 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
         return __builtins__.get(name)
     
     config = configparser.ConfigParser()
-    config_path = os.path.join(os.environ["user_config_directory"],cfg_name)
+    config_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"],cfg_name)
     config.read(config_path)
     
     # verify config path is valid
