@@ -8,6 +8,38 @@ import csv
 class Params():
     def __init__(self):
         pass
+        
+def locate_file(filename):
+
+    # check for the environment variable
+    if "USER_CONFIG_DIRECTORY" in os.environ:
+    
+        # separate directories from the list
+        dirs = os.environ["USER_CONFIG_DIRECTORY"].split(';')
+        
+        path = None
+        
+        for directory in dirs:
+            p = os.path.join(directory, filename)
+            
+            # file exsist?
+            if os.path.isfile(p):
+                
+                # store the file path or display a warning if it is already located
+                if path is None:
+                    path = p
+                else:
+                    warnings.warn("Configuration {} is superseded by {}".format(p, path), UserWarning)
+        
+        # nothing found?
+        if path is None:
+            raise FileNotFoundError("Config file {} not found!".format(filename))
+            
+        # return full file path
+        return path
+    
+    else:
+        raise Exception("Environment variable USER_CONFIG_DIRECTORY is not set")
 
 def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type = "obj"):
     """
@@ -31,12 +63,12 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
         return __builtins__.get(name)
     
     config = configparser.ConfigParser()
-    config_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"],cfg_name)
+    config_path = locate_file(cfg_name)
     config.read(config_path)
     
-    # verify config path is valid
+    # verify config file content
     if len(config.sections()) == 0:
-        raise Exception("invalid config path specified, no such file exists or file is empty: {}".format(cfg_name))
+        raise Exception("Config file is empty or malformed: {}".format(cfg_name))
     if len(config.defaults()) == 0:
         warnings.warn("No DEFAULT env specified in config file {}".format(cfg_name),UserWarning)    
     
@@ -134,8 +166,8 @@ def parse_cfg(env_sec_name,cfg_name = None,obj = None,SCHEMA = True, return_type
 #   if key_value specified -> single Params object
 #   if key_value not specified -> dictionary; keys as requested by key_name, values are Params object
 def parse_delimited(list_name, key_name, key_value = None, delim = '|'):
-
-    file_path = os.path.join(os.environ["USER_CONFIG_DIRECTORY"], list_name)      
+    
+    file_path = locate_file(list_name)
 
     str2type = {'int': int, 'float':float, 'bool': bool, 'str': str}
     

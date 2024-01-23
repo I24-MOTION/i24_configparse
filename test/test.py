@@ -5,8 +5,8 @@ from src.i24_configparse import parse_cfg
 
 # set os environment config path
 cwd = os.getcwd()
-cfg = "./config"
-config_path = os.path.join(cwd,cfg)
+#config_path = os.path.join(cwd,cfg)
+config_path = os.path.join(cwd, "test_config1") + ';' + os.path.join(cwd, "test_config2")
 os.environ["USER_CONFIG_DIRECTORY"] = config_path # note that this may not affect processes globally
 os.environ["TEST_CONFIG_SECTION"] = "DEBUG"
 #%% Input Tests
@@ -22,10 +22,12 @@ except Exception as e:
 # TEST 2 - Exception when  cfg_path is specified incorrectly
 try:
     parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test_badpath.config")
-    print("TEST  2: FAIL- does not raise error when invalid config name was specified")
+    print("TEST  2: FAIL- Does not raise error when invalid config name was specified")
+except FileNotFoundError as e:
+    print("TEST  2: PASS - (Correctly throws Exception: {})".format(e))    
 except Exception as e:
-    print("TEST  2: PASS - (Correctly throws Exception: {})".format(e))
-
+    print("TEST  2: FAIL - Incorrectly throws Exception: {}".format(e))
+ 
 
 # TEST 3 - UserWarning when no DEFAULT env is specified in config
 with warnings.catch_warnings(record = True) as w:
@@ -33,7 +35,7 @@ with warnings.catch_warnings(record = True) as w:
     if w[-1].category == UserWarning:
         print("TEST  3: PASS - (Correctly throws UserWarning when no DEFAULT env is specified in config)")
     else:
-        print("TEST  3: FAIL - does not raise UserWarning when no DEFAULT env is specified")   
+        print("TEST  3: FAIL - Does not raise UserWarning when no DEFAULT env is specified")   
  
 # TEST 4 - UserWarning when invalid environment is specified
 with warnings.catch_warnings(record = True) as w:
@@ -41,7 +43,7 @@ with warnings.catch_warnings(record = True) as w:
     if w[-1].category == UserWarning:
         print("TEST  4: PASS - (Correctly throws UserWarning and switched to DEFAULT when invalid env is specified)")
     else:
-        print("TEST  4: FAIL - does not raise UserWarning when invalid env was specified")
+        print("TEST  4: FAIL - Does not raise UserWarning when invalid env was specified")
         
     
 #%% Correct Behavior Tests
@@ -53,9 +55,9 @@ cfg = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test1.config")
 elapsed = time.time() - start
 try:
     cfg.a,cfg.b,cfg.c,cfg.d,cfg.e
-    print("TEST  5: PASS - took {:.5f}s to check schema for 5 attributes".format(elapsed))
+    print("TEST  5: PASS - (Took {:.5f}s to check schema for 5 attributes)".format(elapsed))
 except AttributeError:
-    print("TEST  5: FAIL- param object doesn't have all attributes specified in config")
+    print("TEST  5: FAIL - Param object doesn't have all attributes specified in config")
 
 
 # TEST 6 - verify correct behavior with input object
@@ -93,7 +95,7 @@ except KeyError as e:
 # TEST 9 - UserWarning when no schema is given in config
 with warnings.catch_warnings(record = True) as w:
     cfg = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test5.config")
-    if w[-1].category == UserWarning:
+    if len(w) > 0 and w[-1].category == UserWarning:
         print("TEST  9: PASS - (Correctly throws UserWarning when no schema is given in config)")
     else:
         print("TEST  9: FAIL - does not raise UserWarning when no schema is given in config")    
@@ -111,9 +113,9 @@ try:
     #parse_cfg("DEBUG",cfg_name = "test6.config",SCHEMA = False)
     #parse_cfg("DEBUG",cfg_name = "test3.config",SCHEMA = False)
     parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test10.config",SCHEMA = False)
-    print("TEST 11: PASS - Does not raise Exception when schema-checking is disabled")
+    print("TEST 11: PASS - (Does not raise Exception when schema-checking is disabled)")
 except Exception as e:
-    print("TEST 11: FAIL - (Incorrectly throws Exception: {})".format(e))   
+    print("TEST 11: FAIL - Incorrectly throws Exception: {}".format(e))   
     
     
 #%% Additional tests
@@ -143,7 +145,7 @@ try:
     assert type(params.d) == bool and params.d, "d"
     assert type(params.e) == float and params.e == 1.405
     assert type(params.g) == bool and not params.g, "g"
-    print("TEST 14: PASS - types are correctly cast")
+    print("TEST 14: PASS - (Types are correctly cast)")
 except AssertionError as e:
     print("TEST 14: FAIL - types are not correctly cast: {}".format(e))
 
@@ -153,14 +155,40 @@ d = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test8.config",return_type = "dic
 if type(d) == dict:
     print("TEST 15: PASS - (correctly returns dictionary when specified)")   
 else:
-    print("TEST 15: FAIL - (fails to return dictionary when specified)")   
+    print("TEST 15: FAIL - fails to return dictionary when specified")   
 
 
 # TEST 16 - check list parsing
 try:
     params = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test11.config")
-    print("TEST 16: PASS - List parameters parsed correctly")   
+    print("TEST 16: PASS - (List parameters parsed correctly)")   
     assert len(params.a) == 5 and params.a[0] == 1, "a"
     assert len(params.c) == 3 and not params.c[1] , "c"
 except Exception as e:
-    print("TEST 16: FAIL - List parameters parsed incorrectly: {}".format(e))   
+    print("TEST 16: FAIL - List parameters parsed incorrectly: {}".format(e))
+    
+    
+# TEST 17 - correctly loads from secondary locations
+try:
+    cfg = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test17.config")
+    cfg.a,cfg.b,cfg.c,cfg.d,cfg.e
+    print("TEST 17: PASS - (Correctly loads from secondary locations)")
+except Exception as e:
+    print("TEST 17: FAIL - Can not load files from secondary locations")
+    
+# TEST 18 - check warning for superseded configurations
+with warnings.catch_warnings(record = True) as w:
+    cfg = parse_cfg("TEST_CONFIG_SECTION",cfg_name = "test18.config")
+    if len(w) > 0 and w[-1].category == UserWarning:
+        print("TEST 18: PASS - (Correctly throws UserWarning when multiple files are available: {})".format(w[-1].message))
+    else:
+        print("TEST 18: FAIL - does not raise UserWarning when multiple files are available")  
+        
+        
+# TEST 21 - Exception thrown when no cfg_name or obj are passed
+try:
+    del os.environ["USER_CONFIG_DIRECTORY"]
+    parse_cfg("TEST_CONFIG_SECTION",cfg_name="test1.config")
+    print("TEST 21: FAIL - does not correctly handle missing environment variable USER_CONFIG_DIRECTORY")
+except Exception as e:
+    print("TEST 21: PASS - (Correctly throws Exception: {})".format(e))

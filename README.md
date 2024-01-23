@@ -9,15 +9,15 @@ pip install git+https://github.com/Lab-Work/i24_configparse@latest
 Then, within your file:
 
 ```
-os.environ["user_config_directory"] = <path to your config directory>   # all config file names will be specified relative to this directory
-os.environ["my_config_section"] = "DEBUG"                               # os variable name that stores the section of the config files to be used
+os.environ["USER_CONFIG_DIRECTORY"] = <path to your config directories>   # a $PATH like list of directories containing the configuration files (separated by semicolon), 
+os.environ["MY_CONFIG_SECTION"] = "DEBUG"                               # os variable name that stores the section of the config files to be used
 
 from i24_configparse import parse_cfg, parse_delim
 
 
 # for INI like configuration files
 from i24_configparse import parse_cfg
-params = parse_cfg("my_config_section",cfg_name = "parameter_file.config")
+params = parse_cfg("MY_CONFIG_SECTION",cfg_name = "parameter_file.config")
 
 # for CSV like, delimited list files (returns a single entry for the specified key-value pair)
 from i24_configparse import parse_delimited
