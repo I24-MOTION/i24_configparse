@@ -8,8 +8,7 @@ from src.i24_configparse import parse_delimited
 cwd = os.getcwd()
 cfg = "./config"
 config_path = os.path.join(cwd,cfg)
-os.environ["user_config_directory"] = config_path # note that this may not affect processes globally
-os.environ["test_config_section"] = "DEBUG"
+os.environ["USER_CONFIG_DIRECTORY"] = config_path # note that this may not affect processes globally
 #%% Input Tests
     
 # Tests for single param output cases  
