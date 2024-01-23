@@ -1,9 +1,9 @@
 # i24_configparse
 
-### Installation
+### NEW Installation Link
 
 ```
-pip install git+https://github.com/DerekGloudemans/i24_configparse@latest
+pip install git+https://github.com/Lab-Work/i24_configparse@latest
 ```
 
 Then, within your file:
