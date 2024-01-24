@@ -6,10 +6,8 @@ from src.i24_configparse import parse_delimited
 
 # set os environment config path
 cwd = os.getcwd()
-cfg = "./config"
-config_path = os.path.join(cwd,cfg)
-os.environ["user_config_directory"] = config_path # note that this may not affect processes globally
-os.environ["test_config_section"] = "DEBUG"
+config_path = os.path.join(cwd, "test_config1") + ';' + os.path.join(cwd, "test_config2")
+os.environ["USER_CONFIG_DIRECTORY"] = config_path # note that this may not affect processes globally
 #%% Input Tests
     
 # Tests for single param output cases  
@@ -137,3 +135,11 @@ except FileNotFoundError as e:
     print("TEST 24: PASS - Correctly throws Exception: {}".format(e))
 except Exception as e:
     print("TEST 24: FAIL - Incorrectly throws Exception: {}".format(e))
+    
+# TEST 25 - check warning for superseded configurations (implicitly for loading form secondary locations)
+with warnings.catch_warnings(record = True) as w:
+    cfg = parse_delimited("test25.list", 'a')
+    if len(w) > 0 and w[-1].category == UserWarning:
+        print("TEST 25: PASS - Correctly throws UserWarning when multiple files are available: {}".format(w[-1].message))
+    else:
+        print("TEST 25: FAIL - Does not raise UserWarning when multiple files are available")
