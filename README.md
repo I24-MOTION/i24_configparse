@@ -9,7 +9,7 @@ pip install git+https://github.com/Lab-Work/i24_configparse@latest
 Then, within your file:
 
 ```
-os.environ["USER_CONFIG_DIRECTORY"] = <path to your config directories>   # a $PATH like list of directories containing the configuration files (separated by semicolon), 
+os.environ["USER_CONFIG_DIRECTORY"] = <path to your config directories>   # a $PATH like list of directories containing the configuration files (separated by colon (POSIX) or semicolon (WINDOWS)), 
 os.environ["MY_CONFIG_SECTION"] = "DEBUG"                               # os variable name that stores the section of the config files to be used
 
 from i24_configparse import parse_cfg, parse_delim

@@ -15,7 +15,7 @@ def locate_file(filename):
     if "USER_CONFIG_DIRECTORY" in os.environ:
     
         # separate directories from the list
-        dirs = os.environ["USER_CONFIG_DIRECTORY"].split(';')
+        dirs = os.environ["USER_CONFIG_DIRECTORY"].split(os.pathsep)
         
         path = None
         

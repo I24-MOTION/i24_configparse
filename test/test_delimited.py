@@ -6,8 +6,11 @@ from src.i24_configparse import parse_delimited
 
 # set os environment config path
 cwd = os.getcwd()
-config_path = os.path.join(cwd, "test_config1") + ';' + os.path.join(cwd, "test_config2")
+config_path = os.path.join(cwd, "test_config1") + os.pathsep + os.path.join(cwd, "test_config2")
 os.environ["USER_CONFIG_DIRECTORY"] = config_path # note that this may not affect processes globally
+
+print("USER_CONFIG_DIRECTORY = {}".format(os.environ["USER_CONFIG_DIRECTORY"]))
+
 #%% Input Tests
     
 # Tests for single param output cases  
